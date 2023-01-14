@@ -6,7 +6,10 @@ Random targeting methods take on average, 96 turns to win with a median of 97, s
   This means its pretty terrible, as expected
   
 #### Checkerboard patterns
-Since the smallest ship is 2 units long, we don't have to fire on all tiles in order to find all the ships. Using an odd checkerboard pattern we can cut down some of the time it takes to find ships. However, when finding ships we can't continue using a checkerboard pattern to fire upon, instead we need to target ships directly...
+Since the smallest ship is 2 units long, we don't have to fire on all tiles in order to find all the ships. Using an odd checkerboard pattern we can cut down some of the time it takes to find ships.
+
+#### Probability searching
+We could also utilise probability to weigh up all the possible places for ships. Since the smallest ship still sticks out 1 unit from the corners, and this applies to all the ships we can just add up all the possible locations the ships could be. There are much less ways for a ship to fit into the 1 unit corner, then there are for a piece of a ship to be sticking out in the center. So we can apply and then even update these probabilities when seeking ships.
   
 ### Seeking and hunting
 Normal human players will shoot somewhat randomly until they hit a ship. When that happens they start searching around for the rest of the ship. In algorithmic form this is a *finite state machine*, swapping between seeking a ship and hunting that ship until they are confident it is sunk.
@@ -25,6 +28,8 @@ In this case line 1 - using a factor of 4 performs slightly better. And using th
 ![rand_v_checkerboard_4dir_combos](https://user-images.githubusercontent.com/105332964/212461748-eb083f36-3b1b-46f9-832a-44d3b7015bdd.png)
 
 The red line (line number 1) is the first method we looked at, complete randomness is terrible for battleship. When paired with 4 directional hunting it does much better (line 2), however in comparison with utilising checkerboard searching (line 3) the algorithm does even better. The checkerboard pattern is better for finding those first and last few ships.
+
+
 
 ## The Human Factor
 As we saw before, obviously humans play very differently to random shooting. They also place their ships in a way that is anything but random. Until this point our data has been based off of randomly generated placements of ships. This does pretty well to prove our comparison between different methods of targeting. However, what is theoretically best is often not true in reality, for example people might tend to place their ships closer to the corners.
