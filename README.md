@@ -10,6 +10,12 @@ Since the smallest ship is 2 units long, we don't have to fire on all tiles in o
 
 #### Probability searching
 We could also utilise probability to weigh up all the possible places for ships. Since the smallest ship still sticks out 1 unit from the corners, and this applies to all the ships we can just add up all the possible locations the ships could be. There are much less ways for a ship to fit into the 1 unit corner, then there are for a piece of a ship to be sticking out in the center. So we can apply and then even update these probabilities when seeking ships.
+
+There was a point where I realised I had left a mistake in the algorithm, resulting in some illegal positions considered. This had the unintended effect of causing the algorithm to consider some positions more, leading it to actually perform slightly better in a direct comparison.
+
+![Before_after_prob_fix](https://user-images.githubusercontent.com/105332964/212531510-b1a77027-800e-4981-9319-12d985a567fd.png)
+
+This may be investigated further, as the wider seeking is an aspect of Thompson sampling, meaning that until we have samples an area enough it still holds an equal, or higher, chance of being 'more valuable'.
   
 ## Seeking and hunting
 Normal human players will shoot somewhat randomly until they hit a ship. When that happens they start searching around for the rest of the ship. In algorithmic form this is a *finite state machine*, swapping between seeking a ship and hunting that ship until they are confident it is sunk.
