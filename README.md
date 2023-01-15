@@ -15,7 +15,7 @@ There was a point where I realised I had left a mistake in the algorithm, result
 
 ![Before_after_prob_fix](https://user-images.githubusercontent.com/105332964/212531510-b1a77027-800e-4981-9319-12d985a567fd.png)
 
-This may be investigated further, as the wider seeking is an aspect of Thompson sampling, meaning that until we have samples an area enough it still holds an equal, or higher, chance of being 'more valuable'.
+This may be investigated further, as the wider seeking is an aspect of Thompson sampling, meaning that until we have samples an area enough it still holds an equal, or higher, chance of being 'more valuable'. This fix will be kept still, as it likely improves the performance of some aspects and we will revisit the Thompson sampling / exploration-focused integration.
   
 ## Seeking and hunting
 Normal human players will shoot somewhat randomly until they hit a ship. When that happens they start searching around for the rest of the ship. In algorithmic form this is a *finite state machine*, swapping between seeking a ship and hunting that ship until they are confident it is sunk.
@@ -41,7 +41,7 @@ Similar to the 4 directional method, we know that if we hit one square, since th
 
 Using this, we can target the square with the highest chance of containing a ship, using the information on our current hits and misses. This far outperforms any of the previous methods, as it is in essence a smarter application of 4 directional hunting.
 
-## Narrowing down the search targets
+## Confirming sinks
 
 Under some rules of battleship, players tell each other "you sunk my battleship", this might vary in terms of whether they tell each other what type of ship or even if they tell them they sunk a ship at all. Our algorithm is running off information purely based on the hits and misses.
 We can utilise this information to narrow down what ships we've sunked. We know that if we completely surround a 1x2 square with misses and land a hit in there, then it must be the patrol boat. Once we sink this 1x2 square we don't have to look for a patrol boat anymore, and if we find another 1x2 square we know it must be a different kind of ship.
