@@ -11,7 +11,7 @@ Since the smallest ship is 2 units long, we don't have to fire on all tiles in o
 #### Probability searching
 We could also utilise probability to weigh up all the possible places for ships. Since the smallest ship still sticks out 1 unit from the corners, and this applies to all the ships we can just add up all the possible locations the ships could be. There are much less ways for a ship to fit into the 1 unit corner, then there are for a piece of a ship to be sticking out in the center. So we can apply and then even update these probabilities when seeking ships.
   
-### Seeking and hunting
+## Seeking and hunting
 Normal human players will shoot somewhat randomly until they hit a ship. When that happens they start searching around for the rest of the ship. In algorithmic form this is a *finite state machine*, swapping between seeking a ship and hunting that ship until they are confident it is sunk.
 
 #### 4 directional hunting
@@ -29,7 +29,18 @@ In this case line 1 - using a factor of 4 performs slightly better. And using th
 
 The red line (line number 1) is the first method we looked at, complete randomness is terrible for battleship. When paired with 4 directional hunting it does much better (line 2), however in comparison with utilising checkerboard searching (line 3) the algorithm does even better. The checkerboard pattern is better for finding those first and last few ships.
 
+### Probability applications to hunting
 
+Similar to the 4 directional method, we know that if we hit one square, since the smallest ship is the patrol boat, that there should be at least one more hit in the 4 surrounding squares. The likelihood that there is a hit in the square 2 units away in the 4 directions drops off because we are less sure and so on. We can utilise the probability searching method that we used for seeking, however only on the squares that have been hit. We can calculate all the possible ways a ship can fit that overlaps with the observed hit and also is possible in the board configuration (board size, and misses).
+
+Using this, we can target the square with the highest chance of containing a ship, using the information on our current hits and misses. This far outperforms any of the previous methods, as it is in essence a smarter application of 4 directional hunting.
+
+## Narrowing down the search targets
+
+Under some rules of battleship, players tell each other "you sunk my battleship", this might vary in terms of whether they tell each other what type of ship or even if they tell them they sunk a ship at all. Our algorithm is running off information purely based on the hits and misses.
+We can utilise this information to narrow down what ships we've sunked. We know that if we completely surround a 1x2 square with misses and land a hit in there, then it must be the patrol boat. Once we sink this 1x2 square we don't have to look for a patrol boat anymore, and if we find another 1x2 square we know it must be a different kind of ship.
+
+Using a simple algorithm to check for these types of situations, we can 1. Give a much higher weighting to any position we are sure contains an entire ship (a 1x2 square surrounded by misses), and 2. stop considering a ship we are sure we've sunk. This applies best to the probabilistic seeking and hunting method, as we can remove the weighting of the patrol boat for example entirely, which means we don't have to consider the smaller gaps as significantly. The additional weighting for finishing a ship off will likely make our algorithm perform better, as it is given more information once it does so, and it currently considers all hits equal.
 
 ## The Human Factor
 As we saw before, obviously humans play very differently to random shooting. They also place their ships in a way that is anything but random. Until this point our data has been based off of randomly generated placements of ships. This does pretty well to prove our comparison between different methods of targeting. However, what is theoretically best is often not true in reality, for example people might tend to place their ships closer to the corners.
