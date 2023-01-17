@@ -15,25 +15,30 @@ There was a point where I realised I had left a mistake in the algorithm, result
 
 ![Before_after_prob_fix](https://user-images.githubusercontent.com/105332964/212531510-b1a77027-800e-4981-9319-12d985a567fd.png)
 
-This may be investigated further, as the wider seeking is an aspect of Thompson sampling, meaning that until we have samples an area enough it still holds an equal, or higher, chance of being 'more valuable'. This fix will be kept still, as it likely improves the performance of some aspects and we will revisit the Thompson sampling / exploration-focused integration.
+This may be investigated further, as the wider seeking is an aspect of Thompson sampling, meaning that the less we have 'sampled' (or fired upon) an area, the higher chance it could be 'more valuable' than the other areas. This fix will be kept still, as it likely improves the performance of some other implementations further down the line, and we will revisit the Thompson sampling / exploration-focused integration.
   
 ## Seeking and hunting
 Normal human players will shoot somewhat randomly until they hit a ship. When that happens they start searching around for the rest of the ship. In algorithmic form this is a *finite state machine*, swapping between seeking a ship and hunting that ship until they are confident it is sunk.
 
 #### 4 directional hunting
 The smallest ship, the patrol boat is 2 units long, so no matter where we fire, we can expect there to be another hit in at minimum one of the four surrounding squares.
-So, using this system the algorithm hunts around all hit squares until it misses sufficient enough times to be sure there are no more ships to be hit. What I did for fun, was see how much difference it makes between the number of consecutive misses and the performance of the tactic.
+So, using this system the algorithm hunts around all hit squares until it misses sufficient enough times to be sure there are no more ships to be hit. What I did for fun, was see how much difference it makes between the number of consecutive misses and the effect on performance.
 
-![Consecutive_misses_to_return_to_seek](https://user-images.githubusercontent.com/105332964/212461463-7ff62458-6f88-4cc6-b867-6a6ee5f3c1dd.png)
+![4dirhunt_adj_factors](https://user-images.githubusercontent.com/105332964/212787567-87302783-4ae9-4d72-b693-cae24c439153.png)
 
-As you can see, 3-5 misses is a fairly optimal number, having more than 4 misses means that the algorithm will start going over any spots it missed before (otherwise, it returns to seek). Noise arises from doing only 1000 games on each variable, so to determine between using a factor of 4 or 5 consecutive misses as the return-to-seek point I ran 3000 games on each.
-![misses_to_return_to_seek_4_vs_5](https://user-images.githubusercontent.com/105332964/212461625-bb87d9cf-5f1b-42d1-a2f2-31e09f4015c1.png)
 
-In this case line 1 - using a factor of 4 performs slightly better. And using this 4 directional hunting we can show just how much better a checkerboard pattern is when looking for ships, as opposed to random targeting.
+As you can see, 3-5 misses is a fairly optimal number, having more than 4 misses means that the algorithm will start going over any spots it missed before (otherwise, it returns to seek). Noise arises from doing only 1000 games on each variable, so to determine between using a factor of 4 or 5 consecutive misses as the return-to-seek point I ran 3000 games on each. Using a factor of 4 still outperforms the others slightly, so I chose that.
 
-![rand_v_checkerboard_4dir_combos](https://user-images.githubusercontent.com/105332964/212461748-eb083f36-3b1b-46f9-832a-44d3b7015bdd.png)
+#### Seek mode comparison
+![seek_comparison](https://user-images.githubusercontent.com/105332964/212787731-7def521e-ffc6-4711-be0b-399cb7ad8d26.png)
 
-The red line (line number 1) is the first method we looked at, complete randomness is terrible for battleship. When paired with 4 directional hunting it does much better (line 2), however in comparison with utilising checkerboard searching (line 3) the algorithm does even better. The checkerboard pattern is better for finding those first and last few ships.
+Pure random as a baseline performs terribly. However, you can see just applying 4dir hunting makes it perform far better as the algorithm will finish off any targets it finds. Still using 4dir hunting, seeking using a checkerboard performs slightly better as the maximum number of squares to find all the ships is almost half now.
+Probabilistic hunting far outperforms the others though, finishing 90% of games where the checkerboard approach only finishes slightly more than 75%. To compare the medians -  the number of turns it takes for the approach to win 50% of its games:
+
+1. Probability seeking using 4 directional hunting: 60.8 turns
+2. Checkerboard seeking using 4 directional hunting: 68 turns
+3. Random seeking using 4 directional hunting: 71 turns
+4. Pure random: 97 turns
 
 ### Probability applications to hunting
 
@@ -41,10 +46,12 @@ Similar to the 4 directional method, we know that if we hit one square, since th
 
 Using this, we can target the square with the highest chance of containing a ship, using the information on our current hits and misses. This far outperforms any of the previous methods, as it is in essence a smarter application of 4 directional hunting.
 
-## Confirming sinks
+## You Sunk My Battleship
+Under the official rules of battleship, a player must tell the other player when they have sunk a ship, including which type of ship. If we incorporate this into our algorithm, we can use it for helping our algorithm narrow down ship positions.
 
-Under some rules of battleship, players tell each other "you sunk my battleship", this might vary in terms of whether they tell each other what type of ship or even if they tell them they sunk a ship at all. Our algorithm is running off information purely based on the hits and misses.
-We can utilise this information to narrow down what ships we've sunked. We know that if we completely surround a 1x2 square with misses and land a hit in there, then it must be the patrol boat. Once we sink this 1x2 square we don't have to look for a patrol boat anymore, and if we find another 1x2 square we know it must be a different kind of ship.
+If we know that the patrol boat is sunk, we no longer have to check positions that only the patrol boat can fit in. We can also use an additional algorithm to determine where the patrol boat is that we have sunk, and once that can be determined the tiles of the sunk ship can be considered an obstruction. This allows the list of possible arrangments to be smaller and more accurate.
+
+
 
 Using a simple algorithm to check for these types of situations, we can 1. Give a much higher weighting to any position we are sure contains an entire ship (a 1x2 square surrounded by misses), and 2. stop considering a ship we are sure we've sunk. This applies best to the probabilistic seeking and hunting method, as we can remove the weighting of the patrol boat for example entirely, which means we don't have to consider the smaller gaps as significantly. The additional weighting for finishing a ship off will likely make our algorithm perform better, as it is given more information once it does so, and it currently considers all hits equal.
 
