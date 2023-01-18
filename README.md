@@ -1,5 +1,5 @@
 # Battleship
-Exploring battleship tactics, and different algorithms for the best gameplay
+Exploring battleship tactics, and different algorithms for approaching optimal gameplay.
 
 #### Random Targeting
 Random targeting methods take 97 turns to win 50% of its games. So in the other 50% of its games the last 3 turns are when it lands its final shots. As should be expected, relying on pure chance does terribly.
