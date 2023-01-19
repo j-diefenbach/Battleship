@@ -65,5 +65,14 @@ We did incorporate part of the checkerboard approach, as we know we only have to
 2. We only need to find one of the tiles of the ship, so if we are considering the carrier / submarine we can overlay a grid that adds a weight on every 'third' tile in 2D
 3. In tight spaces where the probabilistic algorithm performs better we might need to fully merge these approaches, something along the lines of adding probabilities with an offset along the ships' possible arrangements as they are calculated
 
+Firstly, there are multiple options for a checkerboard now that it has a significant effect on our algorithm. We can consider every nth tile where n is the largest ship size, or the smallest ship size. We could also let n be the approximate average size.
+So first we will compare the effect of those.
+
+![checkerboard_sizes](https://user-images.githubusercontent.com/105332964/213370195-66136cb4-c1da-4596-85a7-2dfdbd089292.png)
+
+Looking for the smallest ship alive at any point in time aids in the long-run because the search pattern means that in the end there are less places that haven't been checked. However, this is because the worst games are those where the patrol boat can't be found, however in many games that isn't the case, and that is why it underperforms in shorter games - because it is taking too long to find the larger ships.
+
+Simply put this is a compromise, the blue line is essentially what happens when you look for the patrol boat or a 3-sized ship the entire game, which is not optimal but worth considering for much longer games. To further analyse the differences, we will look at the effects these three approaches have on combination serach.
+
 ## The Human Factor
 As we saw before, obviously humans play very differently to random shooting. They also place their ships in a way that is anything but random. Until this point our data has been based off of randomly generated placements of ships. This does pretty well to prove our comparison between different methods of targeting. However, what is theoretically best is often not true in reality, for example people might tend to place their ships closer to the corners more often than the current probability algorithm predicts.
