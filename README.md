@@ -52,7 +52,18 @@ If we know that the patrol boat is sunk, we no longer have to check positions th
 
 Using a simple algorithm to check for these types of situations, we can 1. Give a much higher weighting to any position we are sure contains an entire ship (a 1x2 square surrounded by misses), and 2. stop considering a ship we are sure we've sunk. This applies best to the probabilistic seeking and hunting method, as we can remove the weighting of the patrol boat for example entirely, which means we don't have to consider the smaller gaps as significantly. The additional weighting for finishing a ship off will likely make our algorithm perform better, as it is given more information once it does so, and it currently considers all hits equal.
 
-However, it performs about the same. In the shorter games it actually underperforms, while the longer games it does perform slightly better. The reason for this came up before, when comparing between the fixed and inaccurate probability methods. Because the inaccurate probability method searched more of the less likely positions. Similarly, by narrowing down the probability to the ships we know are sunk, while the probability might be more accurate, wide open spaces are all considered equal if we are only looking for the patrol boat. We can incorporate part of the checkerboard approach, as we know we only have to search a specific pattern in this case to find the patrol boat, after which we can find the second tile. By overlaying a checkerboard pattern based on the ships currently alive, it may push an even more optimal strategy for seeking ships out.
+Now we can do some comparisons...
+
+![new_probabilistic](https://user-images.githubusercontent.com/105332964/213365442-725e9885-7dfc-4745-ac87-2d1a60de8c22.png)
+
+Most of the methods now perform the same, this is generally because their hunting methods (all the same new probabilistic hunt) mean they can finish a ship off quickly once its found. So what sets these algorithms apart, as even a basic checkerboard compared to probabilistic seek perform the same, is extremely optimal seeking. Combining both the checkerboard and probability methods suddenly jumps the algorithm to a new average of 47 turns to win.
+
+### Incorporating advanced checkerboard
+We did incorporate part of the checkerboard approach, as we know we only have to search a specific pattern in this case to find the patrol boat, after which we can find the second tile. By overlaying a checkerboard pattern based on the ships currently alive, it may push an even more optimal strategy for seeking ships out where we have a large open space (i.e. most of the early game). We have some things to consider when doing this
+
+1. Probability is much better late tgame than early game (there's a visible dent in the graph above). The small probabilities means the checkerboard 'overlay' on the weighting overwhelms the probabilities.
+2. We only need to find one of the tiles of the ship, so if we are considering the carrier / submarine we can overlay a grid that adds a weight on every 'third' tile in 2D
+3. In tight spaces where the probabilistic algorithm performs better we might need to fully merge these approaches, something along the lines of adding probabilities with an offset along the ships' possible arrangements as they are calculated
 
 ## The Human Factor
 As we saw before, obviously humans play very differently to random shooting. They also place their ships in a way that is anything but random. Until this point our data has been based off of randomly generated placements of ships. This does pretty well to prove our comparison between different methods of targeting. However, what is theoretically best is often not true in reality, for example people might tend to place their ships closer to the corners more often than the current probability algorithm predicts.
